@@ -238,7 +238,7 @@
       entries.push(
         makeEntry(
           `Dúzia ${a} + Dúzia ${b}`,
-          `Combinação das dúzias ${a} e ${b}. O zero não pertence a nenhuma dúzia.`,
+          `Combinação das dúzias ${a} e ${b}. Fazer a proteção no zero!.`,
           "Dúzias"
         )
       );
@@ -248,7 +248,7 @@
       entries.push(
         makeEntry(
           `Coluna ${a} + Coluna ${b}`,
-          `Combinação das colunas ${a} e ${b}. O zero não pertence a nenhuma coluna.`,
+          `Combinação das colunas ${a} e ${b}. Fazer a proteção no zero!.`,
           "Colunas"
         )
       );
@@ -259,8 +259,8 @@
       ["Ímpares", "Números ímpares de 1 a 35."],
       ["Baixos (1–18)", "Números de 1 a 18."],
       ["Altos (19–36)", "Números de 19 a 36."],
-      ["Vermelho", "Aposta nos números vermelhos."],
-      ["Preto", "Aposta nos números pretos."]
+      ["Vermelho", "Fazer a proteção no zero!"],
+      ["Preto", "Fazer a proteção no zero!"]
     ];
 
     for (const [name, description] of externalBets) {
@@ -302,7 +302,7 @@
           entries.push(
             makeEntry(
               `Combinação ${a}–${b}–${c}`,
-              `Faces selecionadas: ${a}, ${b} e ${c}. Esta seleção não prevê o próximo resultado.`,
+              `Faces selecionadas: ${a}, ${b} e ${c}..`,
               "Combinação de faces"
             )
           );
@@ -313,7 +313,7 @@
     entries.push(
       makeEntry("Azul", "Resultado Azul.", "Resultados"),
       makeEntry("Vermelho", "Resultado Vermelho.", "Resultados"),
-      makeEntry("Empate", "Resultado Empate, conforme as regras da mesa.", "Resultados")
+      makeEntry("Empate", "Resultado Empate", "Resultados")
     );
 
     return entries;
@@ -493,7 +493,7 @@
       if (progress) progress.hidden = true;
 
       setMessage(
-        `Seleção concluída. Resultados registrados: ${sampleSize}. Nenhuma previsão foi calculada.`
+        `Analise concluída. `
       );
 
       analyzing = false;

@@ -2,7 +2,7 @@
 "use strict";
 
 (() => {
-  const LIMITE_MINUTOS = 1;
+  const LIMITE_MINUTOS = 30;
 
   const STORAGE_KEY = "aiCasinoAnalyzer_dailyLimit_v1";
   const LEADER_KEY = "aiCasinoAnalyzer_dailyLimit_leader_v1";

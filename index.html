@@ -1,374 +1,98 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#090909">
-
-  <title>AI Casino Analyzer Pro</title>
-
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#050505">
+    <title>Nexora IA | Análise de Entradas</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
 
-  <header class="topbar">
-    <a class="brand" href="#">
-      <span class="brand-icon">A</span>
-      <span>AI CASINO <strong>ANALYZER PRO</strong></span>
-    </a>
-
-    <span class="status">
-      <i></i>
-      ANALISADOR LOCAL
-    </span>
-  </header>
-
-  <main class="container">
-
-    <!-- APRESENTAÇÃO -->
-    <section class="hero">
-      <span class="eyebrow">STATISTICAL ANALYSIS SYSTEM</span>
-      <h1>Escolha sua <span>mesa.</span></h1>
-      <p>Histórico, análise e gerenciamento em um único painel.</p>
-    </section>
-
-    <!-- SELEÇÃO DO JOGO -->
-    <nav class="tabs" aria-label="Selecionar jogo">
-      <button
-        class="tab active"
-        type="button"
-        data-game="roulette"
-      >
-        Roleta Brasileira
-      </button>
-
-      <button
-        class="tab"
-        type="button"
-        data-game="immersive"
-      >
-        Roleta Immersive
-      </button>
-
-      <button
-        class="tab"
-        type="button"
-        data-game="sicbo"
-      >
-        Mega Sic Bo
-      </button>
-
-      <button
-        class="tab"
-        type="button"
-        data-game="bacbo"
-      >
-        Bac Bo
-      </button>
-    </nav>
-
-    <!-- PLATAFORMA -->
-    <section class="platform panel">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">PLATAFORMA</span>
-          <h2 id="platformTitle">Roleta Brasileira</h2>
+    <header class="header">
+        <div class="brand">
+            <span class="brand-icon">N</span>
+            <div>
+                <h1>NEXORA <span>IA</span></h1>
+                <p>PLATAFORMA DE ANÁLISE</p>
+            </div>
         </div>
 
-        <span class="tag" id="platformStatus">
-          URL NÃO CONFIGURADA
-        </span>
-      </div>
+        <div class="analysis-panel">
+            <div class="status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Sistema pronto</span>
+            </div>
 
-      <details class="platform-settings">
-        <summary>Configurar endereço da plataforma</summary>
+            <div class="analyzer">
+                <div
+                    class="loader"
+                    id="loader"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Analisar entrada"
+                    title="Analisar entrada"
+                >
+                    <span>↻</span>
+                </div>
 
-        <p>
-          Insira o endereço autorizado da mesa.
-          Algumas plataformas bloqueiam a abertura em iframe.
-        </p>
+                <div class="result-area">
+                    <span class="result-label" id="resultLabel">
+                        CLIQUE PARA ANALISAR
+                    </span>
+                    <strong class="result" id="result"></strong>
+                </div>
+            </div>
 
-        <form id="platformForm">
-          <label for="platformUrl">
-            URL da plataforma (HTTPS)
-          </label>
-
-          <div class="url-row">
-            <input
-              id="platformUrl"
-              type="url"
-              placeholder="https://exemplo.com/mesa"
-              autocomplete="url"
-            >
-
-            <button
-              class="button secondary"
-              type="submit"
-            >
-              Abrir
-            </button>
-          </div>
-        </form>
-      </details>
-
-      <div class="frame-shell">
-        <div class="frame-placeholder" id="framePlaceholder">
-          <div class="placeholder-icon">↗</div>
-
-          <h3>Plataforma não conectada</h3>
-
-          <p>
-            Configure a URL autorizada para tentar abrir a mesa aqui.
-          </p>
+            <div class="timer">
+                <span>PRÓXIMA ANÁLISE</span>
+                <strong id="countdown">01:00</strong>
+            </div>
         </div>
+    </header>
 
-        <iframe
-          id="platformFrame"
-          title="Plataforma de jogo"
-          src="about:blank"
-          loading="lazy"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen
-        ></iframe>
-      </div>
-
-      <p class="small-note">
-        Esse painel pega automaticamente os resultados do jogo.
-      </p>
-    </section>
-
-    <!-- ANÁLISE -->
-    <section class="panel analysis-panel">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">MÓDULO SELECIONADO</span>
-          <h2 id="gameTitle">Roleta Brasileira</h2>
-        </div>
-
-        <span class="tag gold-tag">
-          MARTINGALE 2
-        </span>
-      </div>
-
-      <!-- MÉTRICAS -->
-      <div class="metrics">
-        <article class="metric">
-          <span>Resultados salvos</span>
-          <strong id="historyCount">0</strong>
-        </article>
-
-        <article class="metric">
-          <span>Última análise</span>
-          <strong id="lastAnalysis">Nenhuma</strong>
-        </article>
-
-        <article class="metric">
-          <span>Intervalo</span>
-          <strong id="timerDisplay">01:20</strong>
-        </article>
-      </div>
-
-      <!-- AÇÃO DE ANÁLISE -->
-      <div class="analysis-action">
-        <button
-          id="analyzeBtn"
-          class="button primary"
-          type="button"
-        >
-          <span class="button-icon">✦</span>
-          ANALISAR MELHOR ENTRADA
-        </button>
-
-        <p id="actionMessage" role="status" aria-live="polite">
-          Selecione um jogo para começar.
-        </p>
-      </div>
-
-      <!-- PROGRESSO -->
-      <div
-        id="analysisProgress"
-        class="progress-track"
-        hidden
-      >
-        <div class="progress-bar"></div>
-      </div>
-
-      <!-- RESULTADO DA ANÁLISE -->
-      <article
-        id="resultCard"
-        class="result-card"
-        hidden
-      >
-        <span class="eyebrow">ENTRADA SELECIONADA</span>
-
-        <h3 id="resultName">—</h3>
-
-        <p id="resultDescription"></p>
-
-        <div class="result-meta">
-
-
-          <span class="tag gold-tag">
-            Progressão máxima: 2 Martingale
-          </span>
-        </div>
-
-        <p class="warning">
-          Não há garantia de acerto ou recuperação de perdas.
-        </p>
-      </article>
-    </section>
-
-    <!-- HISTÓRICO E REGISTRO RÁPIDO -->
-    <section class="panel history-panel">
-
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">ARMAZENAMENTO LOCAL</span>
-          <h2>Histórico do jogo</h2>
-        </div>
-
-        <div class="input-row">
-          <button
-            id="exportBtn"
-            class="button secondary"
-            type="button"
-          >
-            Exportar CSV
-          </button>
-
-          <input
-            type="file"
-            id="arquivoCSV"
-            accept=".csv,text/csv"
-            hidden
-          >
-
-          <button
-            id="importBtn"
-            class="button secondary"
-            type="button"
-          >
-            Importar CSV
-          </button>
-        </div>
-      </div>
-
-      
-
-      <!-- BOTÕES RÁPIDOS GERADOS PELO JAVASCRIPT -->
-      <div id="quickEntryPanel" class="quick-entry-panel">
-        <h3 id="quickEntryTitle">
-          Registro rápido
-        </h3>
-
-        <p
-          id="quickEntryDescription"
-          class="small-note"
-        >
-          Clique no resultado observado para registrá-lo.
-        </p>
-
-        <div
-          id="quickEntryButtons"
-          class="quick-entry-buttons"
-        ></div>
-      </div>
-
-      <!-- REGISTRO MANUAL -->
-      <form id="historyForm" class="history-form">
-        <label for="historyInput">
-          Resultado observado — registro manual
-        </label>
-
-        <div class="input-row">
-          <input
-            id="historyInput"
-            type="text"
-            placeholder="Ex.: 17, Jogador, Empate ou Banca"
-            required
-            maxlength="100"
-          >
-
-          <button
-            class="button secondary"
-            type="submit"
-          >
-            Registrar
-          </button>
-        </div>
-      </form>
-
-      <!-- FREQUÊNCIAS -->
-      <div class="history-summary">
-        <span>Frequências observadas</span>
-        <span id="sampleLabel">Amostra: 0</span>
-      </div>
-
-      <div id="statistics" class="statistics">
-        <p class="empty-state">
-          Ainda não há resultados registrados.
-        </p>
-      </div>
-
-      <!-- LISTA DE RESULTADOS -->
-      <div class="history-list-heading">
-        <h3>Últimos resultados</h3>
-
-        <button
-          id="clearHistoryBtn"
-          class="text-button"
-          type="button"
-        >
-          Limpar histórico
-        </button>
-      </div>
-
-      <ol id="historyList" class="history-list"></ol>
-
-    </section>
-
-    <!-- REGRAS E TRANSPARÊNCIA -->
-    <section class="panel rules-panel">
-      <span class="eyebrow">REGRAS DO ANALISADOR</span>
-
-      <h2>Transparência estatística</h2>
-
-      <ul>
-        <li>
-          O histórico serve para calcular frequências descritivas,
-          não para garantir o próximo resultado.
-        </li>
-
-        <li>
-          Martingale 2 indica no máximo dois níveis de progressão;
-          não elimina o risco financeiro.
-        </li>
-
-        <li>
-          Na roleta, o zero perde nas apostas comuns de dúzia,
-          coluna, par/ímpar, baixo/alto e vermelho/preto.
-          Uma aposta separada no zero também pode perder.
-        </li>
-
-        
-      </ul>
-    </section>
-
-    <!-- RODAPÉ -->
-    <footer>
-      <span>•</span>
-      AI CASINO ANALYZER PRO
-      <span>•</span>
     
-    </footer>
+<main class="platform">
+    <div class="url-screen" id="urlScreen">
+        <div class="url-card">
+            <div class="url-logo">N</div>
 
-  </main>
+            <h2>Conecte sua plataforma</h2>
+            <p>Insira a URL da plataforma que deseja visualizar.</p>
 
-  <script src="script.js"></script>
-  <script src="limite-diario.js"></script>
+            <form id="urlForm">
+                <input
+                    type="url"
+                    id="platformUrl"
+                    placeholder="https://exemplo.com"
+                    aria-label="URL da plataforma"
+                    required
+                >
+
+                <button type="submit" id="openPlatform">
+                    Abrir plataforma
+                    <span>→</span>
+                </button>
+            </form>
+
+            <p class="url-error" id="urlError"></p>
+        </div>
+    </div>
+
+    <iframe
+        id="platformFrame"
+        title="Plataforma de análise"
+        allowfullscreen
+    ></iframe>
+
+    <div class="frame-overlay" id="frameOverlay">
+        <span>Carregando plataforma...</span>
+    </div>
+</main>
+</body>
+</html>
+
+
+    <script src="script.js"></script>
 </body>
 </html>

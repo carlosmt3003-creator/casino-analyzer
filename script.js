@@ -436,6 +436,7 @@ function updateSharedLock() {
 
     let analysisStartedAt = 0;
 
+
     function startAnalysis(type) {
         /*
          * VERIFICAÇÃO CENTRAL:
@@ -466,9 +467,17 @@ function updateSharedLock() {
         saveLock();
         stopTimers();
 
-        const ui = getElements(type);
+        ;
 
-        ui.button.disabled = true;
+const ui = getElements(type);
+
+// Esconde as entradas anteriores ao iniciar uma nova análise.
+el.standardBestEntry.hidden = true;
+el.premiumBestEntry.hidden = true;
+
+ui.button.disabled = true;
+
+
 
         if (type === "STANDARD") {
             el.standardEmptyState.hidden = true;

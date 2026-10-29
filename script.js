@@ -3,22 +3,20 @@
 
 (() => {
     /* ==========================================
-       MEGA SIC BAC — CONTROLE CORRIGIDO
-       Bloqueio compartilhado entre as duas IAs.
-       ========================================== */
+       MEGA SIC BAC — CONTROLE INDEPENDENTE
+       Cada IA possui seu próprio bloqueio.
+    ========================================== */
 
     const CONFIG = {
         STANDARD: {
             duration: 10_000,
             cooldown: 60_000
         },
-
         PREMIUM: {
             duration: 20_000,
             cooldown: 300_000
         },
-
-        STORAGE_KEY: "megaSicBac.sharedLock.v2",
+        STORAGE_KEY: "megaSicBac.independentLocks.v1",
         UPDATE_INTERVAL: 200
     };
 
@@ -86,14 +84,25 @@
     }
 
     /* ==========================================
-       ESTADO GLOBAL
-       ========================================== */
+       ESTADO INDEPENDENTE DE CADA IA
+    ========================================== */
 
-    let activeAnalysis = null;
-    let sharedLockUntil = 0;
-    let lockOwner = null;
-    let intervalId = null;
-    let timeoutId = null;
+    const modes = {
+        STANDARD: {
+            active: false,
+            startedAt: 0,
+            lockedUntil: 0,
+            intervalId: null,
+            timeoutId: null
+        },
+        PREMIUM: {
+            active: false,
+            startedAt: 0,
+            lockedUntil: 0,
+            intervalId: null,
+            timeoutId: null
+        }
+    };
 
     const results = {
         STANDARD: null,
@@ -107,7 +116,6 @@
             { at: 0.7, text: "Calculando indicadores" },
             { at: 0.9, text: "Concluindo análise" }
         ],
-
         PREMIUM: [
             { at: 0, text: "Inicializando análise premium" },
             { at: 0.12, text: "Analisando histórico disponível" },
@@ -119,15 +127,10 @@
         ]
     };
 
-    /* ==========================================
-       ELEMENTOS POR MODALIDADE
-       ========================================== */
-
     function getElements(type) {
         const premium = type === "PREMIUM";
 
         return {
-            card: premium ? el.premiumCard : el.standardCard,
             statusArea: premium
                 ? el.premiumStatusArea
                 : el.standardStatusArea,
@@ -156,56 +159,51 @@
     }
 
     /* ==========================================
-       ARMAZENAMENTO DO BLOQUEIO COMPARTILHADO
-       ========================================== */
+       SALVAR E RESTAURAR OS BLOQUEIOS
+    ========================================== */
 
-    function saveLock() {
+    function saveLocks() {
         try {
             localStorage.setItem(
                 CONFIG.STORAGE_KEY,
                 JSON.stringify({
-                    until: sharedLockUntil,
-                    owner: lockOwner
+                    STANDARD: modes.STANDARD.lockedUntil,
+                    PREMIUM: modes.PREMIUM.lockedUntil
                 })
             );
         } catch (error) {
-            console.warn("Não foi possível salvar o bloqueio.", error);
+            console.warn("Não foi possível salvar os bloqueios.", error);
         }
     }
 
-    function restoreLock() {
+    function restoreLocks() {
         try {
             const saved = JSON.parse(
                 localStorage.getItem(CONFIG.STORAGE_KEY) || "null"
             );
 
-            if (
-                saved &&
-                Number.isFinite(saved.until) &&
-                saved.until > Date.now()
-            ) {
-                sharedLockUntil = saved.until;
-                lockOwner =
-                    saved.owner === "STANDARD" ||
-                    saved.owner === "PREMIUM"
-                        ? saved.owner
-                        : null;
-            } else {
-                sharedLockUntil = 0;
-                lockOwner = null;
-                localStorage.removeItem(CONFIG.STORAGE_KEY);
+            if (!saved || typeof saved !== "object") {
+                return;
             }
-        } catch (error) {
-            sharedLockUntil = 0;
-            lockOwner = null;
 
-            console.warn("Não foi possível restaurar o bloqueio.", error);
+            for (const type of ["STANDARD", "PREMIUM"]) {
+                const value = saved[type];
+
+                modes[type].lockedUntil =
+                    Number.isFinite(value) && value > Date.now()
+                        ? value
+                        : 0;
+            }
+
+            saveLocks();
+        } catch (error) {
+            console.warn("Não foi possível restaurar os bloqueios.", error);
         }
     }
 
     /* ==========================================
        FUNÇÕES AUXILIARES
-       ========================================== */
+    ========================================== */
 
     function formatTime(milliseconds) {
         const seconds = Math.max(
@@ -253,80 +251,52 @@
         }
     }
 
-    function stopTimers() {
-        if (intervalId !== null) {
-            clearInterval(intervalId);
-            intervalId = null;
+    function stopTimers(type) {
+        const mode = modes[type];
+
+        if (mode.intervalId !== null) {
+            clearInterval(mode.intervalId);
+            mode.intervalId = null;
         }
 
-        if (timeoutId !== null) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
+        if (mode.timeoutId !== null) {
+            clearTimeout(mode.timeoutId);
+            mode.timeoutId = null;
         }
     }
 
     /* ==========================================
-       BLOQUEIO DOS DOIS BOTÕES
-       ========================================== */
+       ATUALIZA SOMENTE O MODO INFORMADO
+    ========================================== */
 
-    
-function updateSharedLock() {
-    const now = Date.now();
-    const remaining = Math.max(0, sharedLockUntil - now);
-    const locked = activeAnalysis !== null || remaining > 0;
+    function updateMode(type) {
+        const mode = modes[type];
+        const ui = getElements(type);
+        const now = Date.now();
+        const remaining = Math.max(0, mode.lockedUntil - now);
 
-    el.standardButton.disabled = locked;
-    el.premiumButton.disabled = locked;
+        ui.button.disabled = mode.active || remaining > 0;
 
-    if (activeAnalysis !== null) {
-        const activeUI = getElements(activeAnalysis);
-        const otherType =
-            activeAnalysis === "STANDARD" ? "PREMIUM" : "STANDARD";
-        const otherUI = getElements(otherType);
+        if (mode.active) {
+            const elapsed = now - mode.startedAt;
 
-        activeUI.timer.textContent = formatTime(
-            Math.max(
-                0,
-                CONFIG[activeAnalysis].duration -
-                (now - analysisStartedAt)
-            )
-        );
+            ui.timer.textContent = formatTime(
+                CONFIG[type].duration - elapsed
+            );
 
-        otherUI.timer.textContent = formatTime(remaining);
-        otherUI.progressLabel.textContent =
-            "Bloqueada enquanto a outra IA analisa";
+            return;
+        }
 
-        return;
-    }
-
-    if (remaining > 0) {
-        ["STANDARD", "PREMIUM"].forEach((type) => {
-            const ui = getElements(type);
-
+        if (remaining > 0) {
             ui.timer.textContent = formatTime(remaining);
             ui.progressLabel.textContent =
                 "Próxima análise disponível em";
-        });
+            return;
+        }
 
-        return;
-    }
+        mode.lockedUntil = 0;
 
-    // BLOQUEIO ENCERRADO: libera novamente as duas IAs.
-    sharedLockUntil = 0;
-    lockOwner = null;
-
-    try {
-        localStorage.removeItem(CONFIG.STORAGE_KEY);
-    } catch (error) {
-        console.warn("Não foi possível limpar o bloqueio.", error);
-    }
-
-    ["STANDARD", "PREMIUM"].forEach((type) => {
-        const ui = getElements(type);
-
-        ui.button.disabled = false;
-        ui.timer.textContent =
-            formatTime(CONFIG[type].duration);
+        ui.timer.textContent = formatTime(CONFIG[type].duration);
 
         ui.progressLabel.textContent = results[type]
             ? "Resultado demonstrativo disponível"
@@ -341,12 +311,17 @@ function updateSharedLock() {
         } else {
             setStatus(type, "Aguardando análise", "idle");
         }
-    });
-}
+    }
+
+    function updateAllModes() {
+        updateMode("STANDARD");
+        updateMode("PREMIUM");
+        saveLocks();
+    }
 
     /* ==========================================
        GERAÇÃO DEMONSTRATIVA DOS RESULTADOS
-       ========================================== */
+    ========================================== */
 
     function randomInteger(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -362,8 +337,7 @@ function updateSharedLock() {
     }
 
     function renderLiquidResults(type, data) {
-        const prefix =
-            type === "STANDARD" ? "standard" : "premium";
+        const prefix = type === "STANDARD" ? "standard" : "premium";
 
         const definitions = [
             { key: "Red", value: data.red, label: "Vermelho" },
@@ -424,71 +398,45 @@ function updateSharedLock() {
             current.value > previous.value ? current : previous
         );
 
-        ui.bestValue.textContent =
-            `${best.name} — ${best.value}%`;
-
+        ui.bestValue.textContent = `${best.name} — ${best.value}%`;
         ui.bestEntry.hidden = false;
     }
 
     /* ==========================================
-       INICIAR UMA ANÁLISE
-       ========================================== */
-
-    let analysisStartedAt = 0;
-
+       INICIAR UMA ANÁLISE INDEPENDENTE
+    ========================================== */
 
     function startAnalysis(type) {
-        /*
-         * VERIFICAÇÃO CENTRAL:
-         * bloqueia qualquer clique se já existir uma análise
-         * ativa ou se o cooldown compartilhado não terminou.
-         */
-        if (
-            activeAnalysis !== null ||
-            Date.now() < sharedLockUntil
-        ) {
-            updateSharedLock();
+        const mode = modes[type];
+        const settings = CONFIG[type];
+
+        // Só verifica o bloqueio deste modo.
+        if (mode.active || Date.now() < mode.lockedUntil) {
+            updateMode(type);
             return;
         }
 
-        const settings = CONFIG[type];
+        const ui = getElements(type);
 
-        activeAnalysis = type;
-        analysisStartedAt = Date.now();
+        // Esconde as entradas anteriores dos dois modos.
+        el.standardBestEntry.hidden = true;
+        el.premiumBestEntry.hidden = true;
 
-        /*
-         * O bloqueio é definido no início e aplicado às duas IAs.
-         */
-        sharedLockUntil =
-            analysisStartedAt + settings.cooldown;
+        mode.active = true;
+        mode.startedAt = Date.now();
 
-        lockOwner = type;
+        // O bloqueio pertence somente ao modo clicado.
+        mode.lockedUntil = mode.startedAt + settings.cooldown;
 
-        saveLock();
-        stopTimers();
-
-        ;
-
-const ui = getElements(type);
-
-// Esconde as entradas anteriores ao iniciar uma nova análise.
-el.standardBestEntry.hidden = true;
-el.premiumBestEntry.hidden = true;
-
-ui.button.disabled = true;
-
-
+        saveLocks();
+        stopTimers(type);
 
         if (type === "STANDARD") {
             el.standardEmptyState.hidden = true;
             el.standardLiquidGrid.hidden = true;
         }
 
-        setStatus(
-            type,
-            "Análise em andamento",
-            "processing"
-        );
+        setStatus(type, "Análise em andamento", "processing");
 
         setProgress(
             type,
@@ -496,26 +444,17 @@ ui.button.disabled = true;
             messages[type][0].text
         );
 
-        updateSharedLock();
+        updateMode(type);
 
-        /*
-         * Uma única rotina controla o progresso, o contador
-         * e o momento exato da conclusão.
-         */
         function tick() {
-            if (activeAnalysis !== type) {
+            if (!mode.active) {
+                stopTimers(type);
                 return;
             }
 
             const now = Date.now();
-            const elapsed = now - analysisStartedAt;
-
-            const progress = Math.min(
-                1,
-                elapsed / settings.duration
-            );
-
-            const percentage = progress * 100;
+            const elapsed = now - mode.startedAt;
+            const progress = Math.min(1, elapsed / settings.duration);
 
             let currentMessage = messages[type][0];
 
@@ -527,11 +466,11 @@ ui.button.disabled = true;
 
             setProgress(
                 type,
-                percentage,
+                progress * 100,
                 currentMessage.text
             );
 
-            updateSharedLock();
+            updateMode(type);
 
             if (elapsed >= settings.duration) {
                 finishAnalysis(type);
@@ -540,86 +479,82 @@ ui.button.disabled = true;
 
         tick();
 
-        intervalId = setInterval(
+        mode.intervalId = setInterval(
             tick,
             CONFIG.UPDATE_INTERVAL
         );
 
-        timeoutId = setTimeout(
+        mode.timeoutId = setTimeout(
             tick,
             settings.duration + 50
         );
     }
 
     /* ==========================================
-       CONCLUIR A ANÁLISE
-       ========================================== */
+       CONCLUIR UMA ANÁLISE
+    ========================================== */
 
-    
-function finishAnalysis(type) {
-    if (activeAnalysis !== type) {
-        return;
-    }
+    function finishAnalysis(type) {
+        const mode = modes[type];
 
-    stopTimers();
-
-    try {
-        const data = generateResults();
-
-        results[type] = data;
-
-        renderLiquidResults(type, data);
-        showBestEntry(type, data);
-
-        if (type === "STANDARD") {
-            el.standardEmptyState.hidden = true;
-            el.standardLiquidGrid.hidden = false;
-        } else {
-            el.premiumResult.hidden = false;
+        if (!mode.active) {
+            return;
         }
 
-        setProgress(type, 100, "Análise concluída");
+        stopTimers(type);
 
-        setStatus(
-            type,
-            "ULTIMAS 120 RODADAS ANALISADA",
-            "complete"
-        );
-    } catch (error) {
-        console.error("Erro ao finalizar análise:", error);
+        try {
+            const data = generateResults();
 
-        setStatus(type, "Erro ao gerar resultado", "idle");
-    }
+            results[type] = data;
 
-    // Encerra a análise, mas mantém o bloqueio compartilhado.
-    activeAnalysis = null;
+            renderLiquidResults(type, data);
+            showBestEntry(type, data);
 
-    // Atualiza imediatamente os dois botões e contadores.
-    updateSharedLock();
-
-    // IMPORTANTE: mantém o contador funcionando até liberar.
-    intervalId = setInterval(() => {
-        if (activeAnalysis === null) {
-            updateSharedLock();
-
-            if (Date.now() >= sharedLockUntil) {
-                clearInterval(intervalId);
-                intervalId = null;
+            if (type === "STANDARD") {
+                el.standardEmptyState.hidden = true;
+                el.standardLiquidGrid.hidden = false;
+            } else {
+                el.premiumResult.hidden = false;
             }
-        }
-    }, 200);
-}
 
+            setProgress(type, 100, "Análise concluída");
+
+            setStatus(
+                type,
+                "ÚLTIMAS 120 RODADAS ANALISADAS",
+                "complete"
+            );
+        } catch (error) {
+            console.error("Erro ao finalizar análise:", error);
+
+            setStatus(type, "Erro ao gerar resultado", "idle");
+        }
+
+        mode.active = false;
+
+        // Atualiza apenas o botão e o contador deste modo.
+        updateMode(type);
+        saveLocks();
+
+        // Mantém o contador deste modo atualizado até liberar.
+        mode.intervalId = setInterval(() => {
+            updateMode(type);
+            saveLocks();
+
+            if (Date.now() >= mode.lockedUntil) {
+                stopTimers(type);
+                updateMode(type);
+                saveLocks();
+            }
+        }, CONFIG.UPDATE_INTERVAL);
+    }
 
     /* ==========================================
        CONFIGURAÇÃO DO IFRAME
-       ========================================== */
+    ========================================== */
 
     function initializePlatform() {
-        /*
-         * Coloque a URL real da plataforma abaixo, se desejar.
-         * A plataforma precisa permitir incorporação por iframe.
-         */
         const platformUrl = "";
 
         if (!platformUrl.trim()) {
@@ -647,7 +582,7 @@ function finishAnalysis(type) {
 
     /* ==========================================
        EVENTOS E INICIALIZAÇÃO
-       ========================================== */
+    ========================================== */
 
     function initialize() {
         el.standardButton.addEventListener("click", () => {
@@ -662,42 +597,121 @@ function finishAnalysis(type) {
         el.standardEmptyState.hidden = false;
 
         initializePlatform();
-        restoreLock();
+        restoreLocks();
 
-        updateSharedLock();
+        updateAllModes();
 
-        /*
-         * Atualiza os dois contadores mesmo se a aba ficar
-         * em segundo plano e voltar depois.
-         */
-        intervalId = setInterval(() => {
-            if (activeAnalysis === null) {
-                updateSharedLock();
+        // Atualiza cada modo sem interferir no outro.
+        for (const type of ["STANDARD", "PREMIUM"]) {
+            if (modes[type].lockedUntil > Date.now()) {
+                modes[type].intervalId = setInterval(() => {
+                    updateMode(type);
+                    saveLocks();
+
+                    if (
+                        !modes[type].active &&
+                        Date.now() >= modes[type].lockedUntil
+                    ) {
+                        stopTimers(type);
+                        updateMode(type);
+                        saveLocks();
+                    }
+                }, CONFIG.UPDATE_INTERVAL);
             }
-        }, CONFIG.UPDATE_INTERVAL);
+        }
 
         document.addEventListener("visibilitychange", () => {
             if (!document.hidden) {
-                updateSharedLock();
+                updateAllModes();
             }
         });
 
         window.addEventListener("pagehide", () => {
-            stopTimers();
+            for (const type of ["STANDARD", "PREMIUM"]) {
+                stopTimers(type);
+            }
         });
 
         window.addEventListener("pageshow", () => {
-            restoreLock();
-            updateSharedLock();
+            updateAllModes();
+
+            for (const type of ["STANDARD", "PREMIUM"]) {
+                const mode = modes[type];
+
+                if (mode.active) {
+                    startAnalysisAfterRestore(type);
+                } else if (mode.lockedUntil > Date.now()) {
+                    mode.intervalId = setInterval(() => {
+                        updateMode(type);
+                        saveLocks();
+
+                        if (Date.now() >= mode.lockedUntil) {
+                            stopTimers(type);
+                            updateMode(type);
+                            saveLocks();
+                        }
+                    }, CONFIG.UPDATE_INTERVAL);
+                }
+            }
         });
 
         console.info(
-            "Mega Sic Bac iniciado. Bloqueio compartilhado ativo."
+            "Mega Sic Bac iniciado. Bloqueios independentes ativos."
         );
+    }
+
+    // Retoma o acompanhamento do tempo se a página voltar do cache.
+    function startAnalysisAfterRestore(type) {
+        const mode = modes[type];
+
+        if (!mode.active || mode.intervalId !== null) {
+            return;
+        }
+
+        const settings = CONFIG[type];
+
+        function tick() {
+            if (!mode.active) {
+                stopTimers(type);
+                return;
+            }
+
+            const elapsed = Date.now() - mode.startedAt;
+            const progress = Math.min(1, elapsed / settings.duration);
+
+            let currentMessage = messages[type][0];
+
+            for (const message of messages[type]) {
+                if (progress >= message.at) {
+                    currentMessage = message;
+                }
+            }
+
+            setProgress(type, progress * 100, currentMessage.text);
+            updateMode(type);
+
+            if (elapsed >= settings.duration) {
+                finishAnalysis(type);
+            }
+        }
+
+        tick();
+
+        if (mode.active) {
+            mode.intervalId = setInterval(tick, CONFIG.UPDATE_INTERVAL);
+            mode.timeoutId = setTimeout(
+                tick,
+                Math.max(0, settings.duration - (Date.now() - mode.startedAt)) + 50
+            );
+        }
     }
 
     initialize();
 })();
+
+/* ==========================================
+   ABRIR A PLATAFORMA PELO CAMPO DE URL
+========================================== */
 
 const platformUrlInput = document.getElementById("platformUrlInput");
 const openPlatformButton = document.getElementById("openPlatformButton");

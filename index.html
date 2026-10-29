@@ -1,97 +1,447 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#050505">
-    <title>Nexora IA | Análise de Entradas</title>
+    <meta name="theme-color" content="#080b13">
+    <meta name="description" content="Mega Sic Bac — painel demonstrativo de análise.">
+
+    <title>Mega Sic Bac | Painel de Análise</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <main class="app-container">
 
-    <header class="header">
-        <div class="brand">
-            <span class="brand-icon">N</span>
-            <div>
-                <h1>NEXORA <span>IA</span></h1>
-                <p>PLATAFORMA DE ANÁLISE</p>
+        <header class="topbar">
+            <a class="brand" href="#" aria-label="Mega Sic Bac">
+                <span class="brand-logo" aria-hidden="true">
+                    <svg viewBox="0 0 40 40" fill="none">
+                        <rect x="1" y="1" width="38" height="38" rx="11"
+                              stroke="currentColor" stroke-opacity=".35"/>
+                        <path d="M10 27V13L20 22L30 13V27"
+                              stroke="currentColor" stroke-width="2.5"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+
+                <span class="brand-copy">
+                    <strong>MEGA SIC BAC</strong>
+                    <span>INTELIGÊNCIA ARTIFICIAL</span>
+                </span>
+            </a>
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+                SISTEMA PRONTO
             </div>
-        </div>
+        </header>
 
-        <div class="analysis-panel">
-            <div class="status">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Sistema pronto</span>
-            </div>
+        <!-- Os dois cards principais -->
+        <section class="analysis-grid" aria-label="Análises de IA">
 
-            <div class="analyzer">
-                <div
-                    class="loader"
-                    id="loader"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Analisar entrada"
-                    title="Analisar entrada"
-                >
-                    <span>↻</span>
+            <!-- CARD IA PADRÃO -->
+            <article class="ai-card standard-card" id="standardCard">
+
+                <header class="card-header">
+                    <span class="card-overline">ANÁLISE INTELIGENTE</span>
+                    <h1>IA PADRÃO</h1>
+                </header>
+
+                <div class="standard-status analysis-status"
+                     id="standardStatusArea">
+                    <span class="status-dot"></span>
+                    <span id="standardStatus">Aguardando análise</span>
                 </div>
 
-                <div class="result-area">
-                    <span class="result-label" id="resultLabel">
-                        CLIQUE PARA ANALISAR
+                <div class="liquid-grid" id="standardLiquidGrid">
+
+                    <div class="liquid-column">
+                        <div class="liquid-vessel liquid-red"
+                             id="standardRedLiquid">
+                            <div class="liquid-fill">
+                                <div class="liquid-wave wave-one"></div>
+                                <div class="liquid-wave wave-two"></div>
+                            </div>
+                            <span class="liquid-value"
+                                  id="standardRedValue">--%</span>
+                        </div>
+                        <span class="liquid-label">VERMELHO</span>
+                    </div>
+
+                    <div class="liquid-column">
+                        <div class="liquid-vessel liquid-yellow"
+                             id="standardYellowLiquid">
+                            <div class="liquid-fill">
+                                <div class="liquid-wave wave-one"></div>
+                                <div class="liquid-wave wave-two"></div>
+                            </div>
+                            <span class="liquid-value"
+                                  id="standardYellowValue">--%</span>
+                        </div>
+                        <span class="liquid-label">AMARELO</span>
+                    </div>
+
+                    <div class="liquid-column">
+                        <div class="liquid-vessel liquid-blue"
+                             id="standardBlueLiquid">
+                            <div class="liquid-fill">
+                                <div class="liquid-wave wave-one"></div>
+                                <div class="liquid-wave wave-two"></div>
+                            </div>
+                            <span class="liquid-value"
+                                  id="standardBlueValue">--%</span>
+                        </div>
+                        <span class="liquid-label">AZUL</span>
+                    </div>
+
+                </div>
+
+                <div class="standard-empty-state" id="standardEmptyState">
+                    <span class="empty-state-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3L14.5 9.5L21 12L14.5 14.5L12 21L9.5 14.5L3 12L9.5 9.5L12 3Z"
+                                  stroke="currentColor" stroke-width="1.6"
+                                  stroke-linejoin="round"/>
+                        </svg>
                     </span>
-                    <strong class="result" id="result"></strong>
                 </div>
-            </div>
 
-            <div class="timer">
-                <span>PRÓXIMA ANÁLISE</span>
-                <strong id="countdown">01:00</strong>
-            </div>
-        </div>
-    </header>
+                <div class="progress-area">
+                    <div class="progress-track">
+                        <div class="progress-fill standard-progress"
+                             id="standardProgress"></div>
+                    </div>
 
-    
-<main class="platform">
-    <div class="url-screen" id="urlScreen">
-        <div class="url-card">
-            <div class="url-logo">N</div>
+                    <div class="progress-info">
+                        <span id="standardProgressLabel">Pronto para iniciar</span>
+                        <span id="standardTimer">00:10</span>
+                    </div>
+                </div>
 
-            <h2>Conecte sua plataforma</h2>
-            <p>Insira a URL da plataforma que deseja visualizar.</p>
-
-            <form id="urlForm">
-                <input
-                    type="url"
-                    id="platformUrl"
-                    placeholder="https://exemplo.com"
-                    aria-label="URL da plataforma"
-                    required
-                >
-
-                <button type="submit" id="openPlatform">
-                    Abrir plataforma
-                    <span>→</span>
+                <button type="button"
+                        class="analyze-button standard-button"
+                        id="standardAnalyzeButton">
+                    <span class="button-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3L14.5 9.5L21 12L14.5 14.5L12 21L9.5 14.5L3 12L9.5 9.5L12 3Z"
+                                  stroke="currentColor" stroke-width="1.7"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span>ANALISAR</span>
+                    <span class="button-arrow" aria-hidden="true">→</span>
                 </button>
-            </form>
 
-            <p class="url-error" id="urlError"></p>
+                <div class="best-entry" id="standardBestEntry" hidden>
+                    <span class="best-entry-icon" aria-hidden="true">↗</span>
+                    <span class="best-entry-copy">
+                        <span>MELHOR ENTRADA NO MOMENTO</span>
+                        <strong id="standardBestValue">Aguardando resultado</strong>
+                    </span>
+                </div>
+
+                <footer class="card-footer">
+                    <span class="footer-dot"></span>
+                    GEMINI IA
+                    <span class="footer-separator">•</span>
+                    10 SEGUNDOS
+                </footer>
+
+            </article>
+
+            <!-- CARD IA PREMIUM -->
+            <article class="ai-card premium-card" id="premiumCard">
+
+                <div class="premium-border-glow" aria-hidden="true"></div>
+
+                <header class="card-header premium-header">
+                    <span class="card-overline">INTELIGÊNCIA AVANÇADA</span>
+                    <h2>IA <span>PREMIUM</span></h2>
+                    <p>Análise em modo avançado</p>
+                </header>
+
+                <div class="premium-status analysis-status"
+                     id="premiumStatusArea">
+                    <span class="status-dot"></span>
+                    <span id="premiumStatus">Aguardando análise</span>
+                </div>
+
+                <!-- Ilustração vetorial original -->
+                <div class="ai-illustration" aria-label="Ilustração de inteligência artificial">
+
+                    <div class="illustration-orbit orbit-outer"></div>
+                    <div class="illustration-orbit orbit-middle"></div>
+                    <div class="illustration-orbit orbit-inner"></div>
+
+                    <span class="orbit-node node-top"></span>
+                    <span class="orbit-node node-left"></span>
+                    <span class="orbit-node node-right"></span>
+                    <span class="orbit-node node-bottom"></span>
+
+                    <div class="ai-core">
+                        <svg viewBox="0 0 100 100" fill="none"
+                             aria-hidden="true">
+                            <path d="M35 23H58C69 23 76 31 76 42V59C76 70 68 77 57 77H43C32 77 25 69 25 58V43C25 32 29 27 35 23Z"
+                                  stroke="currentColor" stroke-width="2.2"/>
+                            <path d="M37 43H39M62 43H64"
+                                  stroke="currentColor" stroke-width="5"
+                                  stroke-linecap="round"/>
+                            <path d="M39 57C42 63 47 66 51 66C55 66 60 63 63 57"
+                                  stroke="currentColor" stroke-width="2.2"
+                                  stroke-linecap="round"/>
+                            <path d="M50 14V23M50 77V86M16 50H25M76 50H85"
+                                  stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round"/>
+                            <circle cx="50" cy="11" r="3"
+                                    fill="currentColor"/>
+                            <circle cx="50" cy="89" r="3"
+                                    fill="currentColor"/>
+                            <circle cx="13" cy="50" r="3"
+                                    fill="currentColor"/>
+                            <circle cx="88" cy="50" r="3"
+                                    fill="currentColor"/>
+                        </svg>
+                    </div>
+
+                    <!-- ChatGPT: ícone oficial via Simple Icons -->
+                    <div class="model-chip model-chatgpt">
+                        <img
+                             src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/openai-chatgpt/default.svg"
+                            alt=""
+                            class="model-chip-icon"
+                            aria-hidden="true"
+                        >
+                        <span>CHATGPT</span>
+                    </div>
+
+                    <!-- Claude: ícone via Simple Icons -->
+                    <div class="model-chip model-claude">
+                        <img
+                            src="https://cdn.simpleicons.org/claude/FFFFFF"
+                            alt=""
+                            class="model-chip-icon"
+                            aria-hidden="true"
+                        >
+                        <span>CLAUDE</span>
+                    </div>
+
+                    <div class="illustration-caption">
+                        <span class="caption-line"></span>
+                        <span>NÚCLEO DE ANÁLISE</span>
+                        <span class="caption-line"></span>
+                    </div>
+
+                </div>
+
+                <div class="premium-demo-note">
+                    <span class="status-dot"></span>
+                    <span>Integrações de IA ATIVA</span>
+                </div>
+
+                <div class="progress-area premium-progress-area">
+                    <div class="progress-track">
+                        <div class="progress-fill premium-progress"
+                             id="premiumProgress"></div>
+                    </div>
+
+                    <div class="progress-info">
+                        <span id="premiumProgressLabel">Pronto para iniciar</span>
+                        <span id="premiumTimer">00:20</span>
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="analyze-button premium-button"
+                        id="premiumAnalyzeButton">
+                    <span class="button-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3L14.5 9.5L21 12L14.5 14.5L12 21L9.5 14.5L3 12L9.5 9.5L12 3Z"
+                                  stroke="currentColor" stroke-width="1.7"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span>ANÁLISE PREMIUM</span>
+                    <span class="button-arrow" aria-hidden="true">→</span>
+                </button>
+
+                <section class="premium-result-section"
+                         id="premiumResult"
+                         aria-label="Resultado da IA Premium"
+                         aria-live="polite" hidden>
+
+                    <div class="premium-result-heading">
+                        <span>RESULTADO PREMIUM</span>
+                        <span class="result-complete">
+                            <span class="status-dot"></span>
+                            CONCLUÍDO
+                        </span>
+                    </div>
+
+                    <div class="liquid-grid premium-liquid-grid">
+
+                        <div class="liquid-column">
+                            <div class="liquid-vessel liquid-red"
+                                 id="premiumRedLiquid">
+                                <div class="liquid-fill">
+                                    <div class="liquid-wave wave-one"></div>
+                                    <div class="liquid-wave wave-two"></div>
+                                </div>
+                                <span class="liquid-value"
+                                      id="premiumRedValue">--%</span>
+                            </div>
+                            <span class="liquid-label">VERMELHO</span>
+                        </div>
+
+                        <div class="liquid-column">
+                            <div class="liquid-vessel liquid-yellow"
+                                 id="premiumYellowLiquid">
+                                <div class="liquid-fill">
+                                    <div class="liquid-wave wave-one"></div>
+                                    <div class="liquid-wave wave-two"></div>
+                                </div>
+                                <span class="liquid-value"
+                                      id="premiumYellowValue">--%</span>
+                            </div>
+                            <span class="liquid-label">AMARELO</span>
+                        </div>
+
+                        <div class="liquid-column">
+                            <div class="liquid-vessel liquid-blue"
+                                 id="premiumBlueLiquid">
+                                <div class="liquid-fill">
+                                    <div class="liquid-wave wave-one"></div>
+                                    <div class="liquid-wave wave-two"></div>
+                                </div>
+                                <span class="liquid-value"
+                                      id="premiumBlueValue">--%</span>
+                            </div>
+                            <span class="liquid-label">AZUL</span>
+                        </div>
+
+                    </div>
+
+                    <div class="best-entry premium-best-entry"
+                         id="premiumBestEntry">
+                        <span class="best-entry-icon" aria-hidden="true">✦</span>
+                        <span class="best-entry-copy">
+                            <span>MELHOR ENTRADA NO MOMENTO</span>
+                            <strong id="premiumBestValue">Aguardando resultado</strong>
+                        </span>
+                    </div>
+
+                    <p class="premium-result-note">
+                    </p>
+                </section>
+
+                <footer class="card-footer premium-card-footer">
+                    <span class="footer-dot"></span>
+                    MODO HARD
+                    <span class="footer-separator">•</span>
+                    20 SEGUNDOS
+                </footer>
+
+            </article>
+
+        </section>
+
+        <!-- Plataforma externa: última seção da página -->
+        <section class="platform-section" aria-label="Plataforma externa">
+
+            <header class="platform-heading">
+                <div class="platform-heading-left">
+                    <span class="platform-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="4" width="18" height="16"
+                                  rx="3" stroke="currentColor"
+                                  stroke-width="1.6"/>
+                            <path d="M3 9H21" stroke="currentColor"
+                                  stroke-width="1.6"/>
+                            <circle cx="6.5" cy="6.5" r=".7"
+                                    fill="currentColor"/>
+                            <circle cx="9" cy="6.5" r=".7"
+                                    fill="currentColor"/>
+                        </svg>
+                    </span>
+
+                    <span>
+                        <strong>PLATAFORMA</strong>
+                        <small>Área de visualização externa</small>
+                    </span>
+                </div>
+
+                <span class="platform-label">
+                    <span class="status-dot"></span>
+                    ÁREA DE JOGO
+                </span>
+            </header>
+
+            
+<div class="platform-url-bar">
+    <input
+        type="url"
+        id="platformUrlInput"
+        placeholder="Cole aqui a URL da plataforma..."
+        aria-label="URL da plataforma"
+    >
+
+    <button type="button" id="openPlatformButton">
+        ABRIR PLATAFORMA
+        <span aria-hidden="true">→</span>
+    </button>
+</div>
+
+<div class="platform-frame">
+
+    <div class="frame-placeholder" id="framePlaceholder">
+        <div class="frame-placeholder-icon">
+            <svg viewBox="0 0 48 48" fill="none"
+                 aria-hidden="true">
+                <rect x="5" y="7" width="38" height="34"
+                      rx="7" stroke="currentColor"
+                      stroke-width="1.5"/>
+                <path d="M5 16H43" stroke="currentColor"
+                      stroke-width="1.5"/>
+                <path d="M17 26L23 32L33 22"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+            </svg>
         </div>
+
+        <h3>Plataforma não configurada</h3>
+        <p>
+            Cole a URL da plataforma no campo acima
+            e clique em abrir para carregar o conteúdo.
+        </p>
+        <span class="frame-placeholder-note">
+            AGUARDANDO CONFIGURAÇÃO
+        </span>
     </div>
 
     <iframe
         id="platformFrame"
-        title="Plataforma de análise"
+        title="Plataforma externa Mega Sic Bac"
+        src="about:blank"
+        loading="lazy"
         allowfullscreen
+        referrerpolicy="strict-origin-when-cross-origin"
+        hidden
     ></iframe>
 
-    <div class="frame-overlay" id="frameOverlay">
-        <span>Carregando plataforma...</span>
-    </div>
-</main>
-</body>
-</html>
+</div>
 
+</section>
+
+
+    </main>
 
     <script src="script.js"></script>
 </body>
